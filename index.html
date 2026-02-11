@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Todo List Riska</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Todo List</h1>
+
+    <!-- Input Task -->
+    <div class="task-input">
+        <input type="text" id="taskInput" placeholder="Masukkan task">
+        <select id="categorySelect"></select>
+        <button id="addTaskBtn">Tambah Task</button>
+    </div>
+
+    <!-- Filter -->
+    <div class="filter">
+        <select id="filterCategory">
+            <option value="all">Semua Kategori</option>
+        </select>
+    </div>
+
+    <!-- List Task -->
+    <div id="taskList"></div>
+
+    <hr>
+
+    <!-- Input Kategori -->
+    <h2>Kategori</h2>
+    <div class="category-input">
+        <input type="text" id="categoryName" placeholder="Nama kategori">
+        <input type="color" id="categoryColor">
+        <button id="addCategoryBtn">Tambah Kategori</button>
+    </div>
+
+    <div id="categoryList"></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
