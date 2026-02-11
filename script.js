@@ -1,147 +1,159 @@
-let tasks = [];
-let categories = [];
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+let categories = JSON.parse(localStorage.getItem("categories")) || [
+    { id: 1, name: "Umum", color: "#ff69b4", icon: "📌" }
+];
 
-// LOAD DATA SAAT HALAMAN DIBUKA
-window.onload = function () {
-    tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-    categories = JSON.parse(localStorage.getItem("categories")) || [];
-    renderCategories();
-    renderTasks();
-};
+let statusFilter = "all";
+let categoryFilter = "all";
 
-// SIMPAN DATA
 function saveData() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
     localStorage.setItem("categories", JSON.stringify(categories));
 }
 
-// TAMBAH KATEGORI
-document.getElementById("addCategoryBtn").addEventListener("click", function () {
+function addCategory() {
     const name = document.getElementById("categoryName").value;
     const color = document.getElementById("categoryColor").value;
+    const icon = document.getElementById("categoryIcon").value || "📁";
 
-    if (name === "") return;
+    if (!name) return;
 
-    const newCategory = {
+    categories.push({
         id: Date.now(),
-        name: name,
-        color: color
-    };
+        name,
+        color,
+        icon
+    });
 
-    categories.push(newCategory);
     saveData();
     renderCategories();
-
-    document.getElementById("categoryName").value = "";
-});
-
-// RENDER KATEGORI
-function renderCategories() {
-    const categoryList = document.getElementById("categoryList");
-    const categorySelect = document.getElementById("categorySelect");
-    const filterCategory = document.getElementById("filterCategory");
-
-    categoryList.innerHTML = "";
-    categorySelect.innerHTML = "";
-    filterCategory.innerHTML = '<option value="all">Semua Kategori</option>';
-
-    categories.forEach(cat => {
-        // tampil list kategori
-        const div = document.createElement("div");
-        div.textContent = cat.name;
-        div.style.backgroundColor = cat.color;
-        div.style.padding = "5px";
-        div.style.marginBottom = "5px";
-        div.style.borderRadius = "5px";
-
-        // tombol hapus kategori
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "Hapus";
-        deleteBtn.onclick = function () {
-            categories = categories.filter(c => c.id !== cat.id);
-            tasks = tasks.filter(t => t.categoryId !== cat.id);
-            saveData();
-            renderCategories();
-            renderTasks();
-        };
-
-        div.appendChild(deleteBtn);
-        categoryList.appendChild(div);
-
-        // dropdown untuk task
-        const option = document.createElement("option");
-        option.value = cat.id;
-        option.textContent = cat.name;
-        categorySelect.appendChild(option);
-
-        // dropdown filter
-        const filterOption = document.createElement("option");
-        filterOption.value = cat.id;
-        filterOption.textContent = cat.name;
-        filterCategory.appendChild(filterOption);
-    });
 }
 
-// TAMBAH TASK
-document.getElementById("addTaskBtn").addEventListener("click", function () {
+function addTask() {
     const text = document.getElementById("taskInput").value;
-    const categoryId = document.getElementById("categorySelect").value;
+    const categoryId = document.getElementById("taskCategory").value;
+    const date = document.getElementById("taskDate").value;
 
-    if (text === "" || categoryId === "") return;
+    if (!text) return;
 
-    const newTask = {
+    tasks.push({
         id: Date.now(),
-        text: text,
-        completed: false,
-        categoryId: Number(categoryId)
-    };
+        text,
+        categoryId: Number(categoryId),
+        date,
+        done: false
+    });
 
-    tasks.push(newTask);
     saveData();
     renderTasks();
+}
 
-    document.getElementById("taskInput").value = "";
-});
+function toggleTask(id) {
+    const task = tasks.find(t => t.id == id);
+    task.done = !task.done;
+    saveData();
+    renderTasks();
+}
 
-// RENDER TASK
-function renderTasks(filteredTasks = null) {
-    const taskList = document.getElementById("taskList");
-    taskList.innerHTML = "";
+function deleteTask(id) {
+    tasks = tasks.filter(t => t.id != id);
+    saveData();
+    renderTasks();
+}
 
-    const list = filteredTasks || tasks;
+function setStatusFilter(status) {
+    statusFilter = status;
+    renderTasks();
+}
 
-    list.forEach(task => {
-        const category = categories.find(c => c.id === task.categoryId);
+function setCategoryFilter(id) {
+    categoryFilter = id;
+    renderTasks();
+}
 
-        const div = document.createElement("div");
-        div.className = "task";
-        div.style.backgroundColor = category ? category.color : "#ddd";
+function renderCategories() {
+    const select = document.getElementById("taskCategory");
+    const list = document.getElementById("categoryList");
+    const filter = document.getElementById("filterCategory");
 
-        if (task.completed) {
-            div.classList.add("completed");
-        }
+    select.innerHTML = "";
+    list.innerHTML = "";
+    filter.innerHTML = `<button onclick="setCategoryFilter('all')">Semua</button>`;
 
-        div.textContent = task.text;
+    categories.forEach(cat => {
+        select.innerHTML += `
+            <option value="${cat.id}">
+                ${cat.icon} ${cat.name}
+            </option>
+        `;
 
-        // toggle selesai
-        div.onclick = function () {
-            task.completed = !task.completed;
-            saveData();
-            renderTasks();
-        };
+        list.innerHTML += `
+            <div style="color:${cat.color}; margin:5px 0;">
+                ${cat.icon} ${cat.name}
+            </div>
+        `;
 
-        taskList.appendChild(div);
+        filter.innerHTML += `
+            <button onclick="setCategoryFilter('${cat.id}')"
+                style="border:2px solid ${cat.color}; color:${cat.color}; margin:3px;">
+                ${cat.icon} ${cat.name}
+            </button>
+        `;
     });
 }
 
-// FILTER
-document.getElementById("filterCategory").addEventListener("change", function () {
-    const value = this.value;
+function renderTasks() {
+    const list = document.getElementById("taskList");
+    const search = document.getElementById("searchInput").value.toLowerCase();
 
-    if (value === "all") {
-        renderTasks();
-    } else {
-        const filtered = tasks.filter(t => t.categoryId == value);
-        renderTasks(filtered);
-    }
-});
+    list.innerHTML = "";
+
+    let filtered = tasks.filter(task => {
+
+        const matchSearch = task.text.toLowerCase().includes(search);
+
+        const matchStatus =
+            statusFilter === "all" ||
+            (statusFilter === "done" && task.done) ||
+            (statusFilter === "pending" && !task.done);
+
+        const matchCategory =
+            categoryFilter === "all" ||
+            task.categoryId == categoryFilter;
+
+        return matchSearch && matchStatus && matchCategory;
+    });
+
+    filtered.forEach(task => {
+        const cat = categories.find(c => c.id == task.categoryId);
+
+        list.innerHTML += `
+            <div class="task ${task.done ? 'done' : ''}"
+                style="border-left:6px solid ${cat ? cat.color : '#ff69b4'}">
+                <span>
+                    ${cat ? cat.icon : "📌"} 
+                    ${task.text} 
+                    (${task.date || "No date"})
+                </span>
+                <div>
+                    <button onclick="toggleTask(${task.id})">✔</button>
+                    <button onclick="deleteTask(${task.id})">✖</button>
+                </div>
+            </div>
+        `;
+    });
+
+    updateStats();
+}
+
+function updateStats() {
+    document.getElementById("totalTask").innerText = tasks.length;
+    document.getElementById("doneTask").innerText = tasks.filter(t => t.done).length;
+    document.getElementById("pendingTask").innerText = tasks.filter(t => !t.done).length;
+}
+
+document.getElementById("searchInput")
+    .addEventListener("input", renderTasks);
+
+renderCategories();
+renderTasks();

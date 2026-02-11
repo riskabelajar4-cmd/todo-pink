@@ -1,43 +1,58 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Todo List Riska</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo Pink System</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
-    <h1>Todo List</h1>
 
-    <!-- Input Task -->
-    <div class="task-input">
-        <input type="text" id="taskInput" placeholder="Masukkan task">
-        <select id="categorySelect"></select>
-        <button id="addTaskBtn">Tambah Task</button>
-    </div>
+    <!-- Speaker HP -->
+    <div class="speaker"></div>
 
-    <!-- Filter -->
-    <div class="filter">
-        <select id="filterCategory">
-            <option value="all">Semua Kategori</option>
-        </select>
-    </div>
+    <h1>💖 TODO SYSTEM 💖</h1>
 
-    <!-- List Task -->
-    <div id="taskList"></div>
-
-    <hr>
-
-    <!-- Input Kategori -->
-    <h2>Kategori</h2>
-    <div class="category-input">
-        <input type="text" id="categoryName" placeholder="Nama kategori">
-        <input type="color" id="categoryColor">
-        <button id="addCategoryBtn">Tambah Kategori</button>
-    </div>
+    <!-- KATEGORI -->
+    <h2>Kelola Kategori</h2>
+    <input type="text" id="categoryName" placeholder="Nama kategori">
+    <input type="color" id="categoryColor" value="#ff69b4">
+    <input type="text" id="categoryIcon" placeholder="Icon (contoh: 📚)">
+    <button onclick="addCategory()">Tambah Kategori</button>
 
     <div id="categoryList"></div>
+
+    <!-- TAMBAH TASK -->
+    <h2>Tambah Task</h2>
+    <input type="text" id="taskInput" placeholder="Tulis task...">
+    <select id="taskCategory"></select>
+    <input type="date" id="taskDate">
+    <button onclick="addTask()">Tambah Task</button>
+
+    <!-- FILTER -->
+    <h2>Filter</h2>
+    <div id="filterCategory"></div>
+
+    <button onclick="setStatusFilter('all')">Semua</button>
+    <button onclick="setStatusFilter('done')">Selesai</button>
+    <button onclick="setStatusFilter('pending')">Pending</button>
+
+    <!-- SEARCH -->
+    <h2>Search</h2>
+    <input type="text" id="searchInput" placeholder="Cari task...">
+
+    <!-- STATISTIK -->
+    <h2>Statistik</h2>
+    <div class="stat">Total: <span id="totalTask">0</span></div>
+    <div class="stat">Selesai: <span id="doneTask">0</span></div>
+    <div class="stat">Pending: <span id="pendingTask">0</span></div>
+
+    <!-- TASK LIST -->
+    <h2>Daftar Task</h2>
+    <div id="taskList"></div>
+
 </div>
 
 <script src="script.js"></script>
