@@ -6,55 +6,116 @@
     <title>Todo Pink System</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<div class="container">
+<main class="container">
 
-    <!-- Speaker HP -->
+    <!-- Header -->
     <div class="speaker"></div>
-
     <h1>💖 TODO SYSTEM 💖</h1>
 
-    <!-- KATEGORI -->
-    <h2>Kelola Kategori</h2>
-    <input type="text" id="categoryName" placeholder="Nama kategori">
-    <input type="color" id="categoryColor" value="#ff69b4">
-    <input type="text" id="categoryIcon" placeholder="Icon (contoh: 📚)">
-    <button onclick="addCategory()">Tambah Kategori</button>
+    <!-- ================= KATEGORI ================= -->
+    <section class="section">
+        <h2>Kelola Kategori</h2>
 
-    <div id="categoryList"></div>
+        <input 
+            type="text" 
+            id="categoryName" 
+            placeholder="Nama kategori"
+            autocomplete="off"
+        >
 
-    <!-- TAMBAH TASK -->
-    <h2>Tambah Task</h2>
-    <input type="text" id="taskInput" placeholder="Tulis task...">
-    <select id="taskCategory"></select>
-    <input type="date" id="taskDate">
-    <button onclick="addTask()">Tambah Task</button>
+        <input 
+            type="color" 
+            id="categoryColor" 
+            value="#ff69b4"
+        >
 
-    <!-- FILTER -->
-    <h2>Filter</h2>
-    <div id="filterCategory"></div>
+        <input 
+            type="text" 
+            id="categoryIcon" 
+            placeholder="Icon (contoh: 📚)"
+            autocomplete="off"
+        >
 
-    <button onclick="setStatusFilter('all')">Semua</button>
-    <button onclick="setStatusFilter('done')">Selesai</button>
-    <button onclick="setStatusFilter('pending')">Pending</button>
+        <button type="button" onclick="addCategory()">
+            Tambah Kategori
+        </button>
 
-    <!-- SEARCH -->
-    <h2>Search</h2>
-    <input type="text" id="searchInput" placeholder="Cari task...">
+        <div id="categoryList"></div>
+    </section>
 
-    <!-- STATISTIK -->
-    <h2>Statistik</h2>
-    <div class="stat">Total: <span id="totalTask">0</span></div>
-    <div class="stat">Selesai: <span id="doneTask">0</span></div>
-    <div class="stat">Pending: <span id="pendingTask">0</span></div>
+    <!-- ================= TAMBAH TASK ================= -->
+    <section class="section">
+        <h2>Tambah Task</h2>
 
-    <!-- TASK LIST -->
-    <h2>Daftar Task</h2>
-    <div id="taskList"></div>
+        <input 
+            type="text" 
+            id="taskInput" 
+            placeholder="Tulis task..."
+            autocomplete="off"
+        >
 
-</div>
+        <select id="taskCategory">
+            <option value="">Pilih kategori</option>
+        </select>
 
-<script src="script.js"></script>
+        <input type="date" id="taskDate">
+
+        <button type="button" onclick="addTask()">
+            Tambah Task
+        </button>
+    </section>
+
+    <!-- ================= FILTER ================= -->
+    <section class="section">
+        <h2>Filter</h2>
+
+        <div id="filterCategory"></div>
+
+        <div class="status-filter">
+            <button type="button" onclick="setStatusFilter('all')">
+                Semua
+            </button>
+            <button type="button" onclick="setStatusFilter('done')">
+                Selesai
+            </button>
+            <button type="button" onclick="setStatusFilter('pending')">
+                Pending
+            </button>
+        </div>
+    </section>
+
+    <!-- ================= SEARCH ================= -->
+    <section class="section">
+        <h2>Search</h2>
+        <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Cari task..."
+            autocomplete="off"
+        >
+    </section>
+
+    <!-- ================= STATISTIK ================= -->
+    <section class="section">
+        <h2>Statistik</h2>
+        <div class="stat">Total: <span id="totalTask">0</span></div>
+        <div class="stat">Selesai: <span id="doneTask">0</span></div>
+        <div class="stat">Pending: <span id="pendingTask">0</span></div>
+    </section>
+
+    <!-- ================= TASK LIST ================= -->
+    <section class="section">
+        <h2>Daftar Task</h2>
+        <div id="taskList"></div>
+    </section>
+
+</main>
+
+<!-- Script pakai defer supaya aman -->
+<script src="script.js" defer></script>
+
 </body>
 </html>
