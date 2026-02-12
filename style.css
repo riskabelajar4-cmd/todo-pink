@@ -14,8 +14,6 @@ body {
     padding: 20px;
 }
 
-/* ================= CONTAINER (MOBILE DEFAULT) ================= */
-
 .container {
     width: 100%;
     max-width: 420px;
@@ -33,7 +31,6 @@ body {
         0 15px 40px rgba(255, 105, 180, 0.4);
 }
 
-/* ================= SPEAKER ================= */
 
 .speaker {
     width: 80px;
@@ -43,7 +40,6 @@ body {
     margin: 0 auto 15px;
 }
 
-/* ================= TITLE ================= */
 
 h1 {
     text-align: center;
@@ -64,13 +60,10 @@ h2 {
     font-size: 20px;
 }
 
-/* ================= SECTION ================= */
-
 .section {
     margin-bottom: 20px;
 }
 
-/* ================= INPUT ================= */
 
 input,
 select {
@@ -89,7 +82,6 @@ select:focus {
     border-color: #ff1493;
 }
 
-/* ================= BUTTON ================= */
 
 button {
     padding: 8px 14px;
@@ -107,7 +99,6 @@ button:hover {
     background: #ff1493;
 }
 
-/* ================= FILTER BUTTON GROUP ================= */
 
 .status-filter {
     display: flex;
@@ -115,7 +106,7 @@ button:hover {
     gap: 6px;
 }
 
-/* ================= TASK ================= */
+
 
 .task {
     background: #fff0f6;
@@ -138,15 +129,12 @@ button:hover {
     opacity: 0.6;
 }
 
-/* ================= STAT ================= */
-
 .stat {
     margin: 5px 0;
     color: #ff1493;
     font-weight: bold;
 }
 
-/* ================= MOBILE SMALL ================= */
 
 @media (max-width: 480px) {
     .container {
@@ -159,7 +147,7 @@ button:hover {
     }
 }
 
-/* ================= TABLET & DESKTOP ================= */
+
 
 @media (min-width: 768px) {
 
@@ -173,7 +161,6 @@ button:hover {
         min-height: auto;
         border-radius: 15px;
 
-        /* Hilangkan frame HP */
         box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
 

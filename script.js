@@ -1,20 +1,23 @@
-/* ================= GLOBAL STATE ================= */
+let tasks = [];
+let categories = [];
 
-let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-let categories = JSON.parse(localStorage.getItem("categories")) || [];
+try {
+    tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    categories = JSON.parse(localStorage.getItem("categories")) || [];
+} catch (e) {
+    console.log("Storage error, reset data");
+    tasks = [];
+    categories = [];
+}
 
 let statusFilter = "all";
 let categoryFilter = "all";
 let editingTaskId = null;
 
-/* ================= SAVE ================= */
-
 function saveToStorage() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
     localStorage.setItem("categories", JSON.stringify(categories));
 }
-
-/* ================= CATEGORY ================= */
 
 function addCategory() {
     const nameInput = document.getElementById("categoryName");
@@ -56,7 +59,6 @@ function deleteCategory(id) {
 }
 
 function renderCategories() {
-
     const list = document.getElementById("categoryList");
     const select = document.getElementById("taskCategory");
     const filterDiv = document.getElementById("filterCategory");
@@ -67,7 +69,6 @@ function renderCategories() {
 
     categories.forEach(cat => {
 
-        // tampil list kategori
         const div = document.createElement("div");
         div.innerHTML = `
             <span>${cat.icon} ${cat.name}</span>
@@ -75,13 +76,11 @@ function renderCategories() {
         `;
         list.appendChild(div);
 
-        // dropdown tambah task
         const option = document.createElement("option");
         option.value = cat.id;
         option.textContent = `${cat.icon} ${cat.name}`;
         select.appendChild(option);
 
-        // filter kategori
         const filterBtn = document.createElement("button");
         filterBtn.textContent = `${cat.icon} ${cat.name}`;
         filterBtn.onclick = () => {
@@ -91,7 +90,6 @@ function renderCategories() {
         filterDiv.appendChild(filterBtn);
     });
 
-    // tombol semua
     const allBtn = document.createElement("button");
     allBtn.textContent = "Semua";
     allBtn.onclick = () => {
@@ -101,10 +99,7 @@ function renderCategories() {
     filterDiv.prepend(allBtn);
 }
 
-/* ================= TASK ================= */
-
 function addTask() {
-
     const textInput = document.getElementById("taskInput");
     const categorySelect = document.getElementById("taskCategory");
     const dateInput = document.getElementById("taskDate");
@@ -167,7 +162,6 @@ function startEditTask(id) {
 }
 
 function updateTask() {
-
     const text = document.getElementById("taskInput").value.trim();
     const categoryId = document.getElementById("taskCategory").value;
     const date = document.getElementById("taskDate").value;
@@ -187,14 +181,11 @@ function updateTask() {
     renderTasks();
 }
 
-/* ================= RENDER TASK ================= */
-
 function renderTasks() {
-
     const list = document.getElementById("taskList");
     const searchInput = document.getElementById("searchInput");
 
-    const searchValue = searchInput.value.toLowerCase();
+    const searchValue = searchInput ? searchInput.value.toLowerCase() : "";
 
     list.innerHTML = "";
 
@@ -244,25 +235,10 @@ function renderTasks() {
     updateStats();
 }
 
-/* ================= FILTER ================= */
-
 function setStatusFilter(status) {
     statusFilter = status;
     renderTasks();
 }
-
-/* ================= SEARCH ================= */
-
-document.addEventListener("DOMContentLoaded", () => {
-    document
-        .getElementById("searchInput")
-        .addEventListener("input", renderTasks);
-
-    renderCategories();
-    renderTasks();
-});
-
-/* ================= STATISTIK ================= */
 
 function updateStats() {
     document.getElementById("totalTask").textContent = tasks.length;
@@ -271,3 +247,15 @@ function updateStats() {
     document.getElementById("pendingTask").textContent =
         tasks.filter(t => !t.done).length;
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const searchInput = document.getElementById("searchInput");
+
+    if (searchInput) {
+        searchInput.addEventListener("input", renderTasks);
+    }
+
+    renderCategories();
+    renderTasks();
+});
