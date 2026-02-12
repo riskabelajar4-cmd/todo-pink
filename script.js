@@ -1,27 +1,22 @@
-/* ================= DATA ================= */
+/* ================= GLOBAL STATE ================= */
 
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-
-let categories = JSON.parse(localStorage.getItem("categories")) || [
-    { id: 1, name: "Umum", color: "#ff69b4", icon: "📌" }
-];
+let categories = JSON.parse(localStorage.getItem("categories")) || [];
 
 let statusFilter = "all";
 let categoryFilter = "all";
-
+let editingTaskId = null;
 
 /* ================= SAVE ================= */
 
-function saveData() {
+function saveToStorage() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
     localStorage.setItem("categories", JSON.stringify(categories));
 }
 
-
-/* ================= KATEGORI ================= */
+/* ================= CATEGORY ================= */
 
 function addCategory() {
-
     const nameInput = document.getElementById("categoryName");
     const colorInput = document.getElementById("categoryColor");
     const iconInput = document.getElementById("categoryIcon");
@@ -31,24 +26,80 @@ function addCategory() {
     const icon = iconInput.value.trim() || "📁";
 
     if (!name) {
-        alert("Nama kategori wajib diisi!");
+        alert("Nama kategori tidak boleh kosong!");
         return;
     }
 
-    categories.push({
-        id: Date.now(),
-        name: name,
-        color: color,
-        icon: icon
-    });
+    const newCategory = {
+        id: Date.now().toString(),
+        name,
+        color,
+        icon
+    };
 
-    saveData();
-    renderCategories();
+    categories.push(newCategory);
+    saveToStorage();
 
     nameInput.value = "";
     iconInput.value = "";
+
+    renderCategories();
 }
 
+function deleteCategory(id) {
+    categories = categories.filter(cat => cat.id !== id);
+    tasks = tasks.filter(task => task.categoryId !== id);
+
+    saveToStorage();
+    renderCategories();
+    renderTasks();
+}
+
+function renderCategories() {
+
+    const list = document.getElementById("categoryList");
+    const select = document.getElementById("taskCategory");
+    const filterDiv = document.getElementById("filterCategory");
+
+    list.innerHTML = "";
+    select.innerHTML = '<option value="">Pilih kategori</option>';
+    filterDiv.innerHTML = "";
+
+    categories.forEach(cat => {
+
+        // tampil list kategori
+        const div = document.createElement("div");
+        div.innerHTML = `
+            <span>${cat.icon} ${cat.name}</span>
+            <button onclick="deleteCategory('${cat.id}')">✖</button>
+        `;
+        list.appendChild(div);
+
+        // dropdown tambah task
+        const option = document.createElement("option");
+        option.value = cat.id;
+        option.textContent = `${cat.icon} ${cat.name}`;
+        select.appendChild(option);
+
+        // filter kategori
+        const filterBtn = document.createElement("button");
+        filterBtn.textContent = `${cat.icon} ${cat.name}`;
+        filterBtn.onclick = () => {
+            categoryFilter = cat.id;
+            renderTasks();
+        };
+        filterDiv.appendChild(filterBtn);
+    });
+
+    // tombol semua
+    const allBtn = document.createElement("button");
+    allBtn.textContent = "Semua";
+    allBtn.onclick = () => {
+        categoryFilter = "all";
+        renderTasks();
+    };
+    filterDiv.prepend(allBtn);
+}
 
 /* ================= TASK ================= */
 
@@ -62,112 +113,79 @@ function addTask() {
     const categoryId = categorySelect.value;
     const date = dateInput.value;
 
-    if (!text) {
-        alert("Task tidak boleh kosong!");
+    if (!text || !categoryId) {
+        alert("Task dan kategori wajib diisi!");
         return;
     }
 
-    tasks.push({
-        id: Date.now(),
-        text: text,
-        categoryId: categoryId ? Number(categoryId) : null,
-        date: date,
-        done: false
-    });
+    if (editingTaskId) {
+        updateTask();
+        return;
+    }
 
-    saveData();
-    renderTasks();
+    const newTask = {
+        id: Date.now().toString(),
+        text,
+        categoryId,
+        date,
+        done: false
+    };
+
+    tasks.push(newTask);
+    saveToStorage();
 
     textInput.value = "";
     dateInput.value = "";
+
+    renderTasks();
 }
 
-
-/* ================= TOGGLE ================= */
-
 function toggleTask(id) {
+    tasks = tasks.map(task =>
+        task.id === id ? { ...task, done: !task.done } : task
+    );
 
+    saveToStorage();
+    renderTasks();
+}
+
+function deleteTask(id) {
+    tasks = tasks.filter(task => task.id !== id);
+    saveToStorage();
+    renderTasks();
+}
+
+function startEditTask(id) {
     const task = tasks.find(t => t.id === id);
     if (!task) return;
 
-    task.done = !task.done;
+    document.getElementById("taskInput").value = task.text;
+    document.getElementById("taskCategory").value = task.categoryId;
+    document.getElementById("taskDate").value = task.date;
 
-    saveData();
-    renderTasks();
+    editingTaskId = id;
 }
 
+function updateTask() {
 
-/* ================= DELETE ================= */
+    const text = document.getElementById("taskInput").value.trim();
+    const categoryId = document.getElementById("taskCategory").value;
+    const date = document.getElementById("taskDate").value;
 
-function deleteTask(id) {
+    tasks = tasks.map(task =>
+        task.id === editingTaskId
+            ? { ...task, text, categoryId, date }
+            : task
+    );
 
-    tasks = tasks.filter(t => t.id !== id);
+    editingTaskId = null;
+    saveToStorage();
 
-    saveData();
-    renderTasks();
-}
-
-
-/* ================= FILTER ================= */
-
-function setStatusFilter(status) {
-    statusFilter = status;
-    renderTasks();
-}
-
-function setCategoryFilter(id) {
-
-    if (id === "all") {
-        categoryFilter = "all";
-    } else {
-        categoryFilter = Number(id);
-    }
+    document.getElementById("taskInput").value = "";
+    document.getElementById("taskDate").value = "";
 
     renderTasks();
 }
-
-
-/* ================= RENDER KATEGORI ================= */
-
-function renderCategories() {
-
-    const select = document.getElementById("taskCategory");
-    const list = document.getElementById("categoryList");
-    const filter = document.getElementById("filterCategory");
-
-    if (!select) return;
-
-    select.innerHTML = `<option value="">Pilih kategori</option>`;
-    list.innerHTML = "";
-    filter.innerHTML = `<button onclick="setCategoryFilter('all')">Semua</button>`;
-
-    categories.forEach(cat => {
-
-        // Dropdown
-        const option = document.createElement("option");
-        option.value = cat.id;
-        option.textContent = `${cat.icon} ${cat.name}`;
-        select.appendChild(option);
-
-        // List kategori
-        const div = document.createElement("div");
-        div.textContent = `${cat.icon} ${cat.name}`;
-        div.style.color = cat.color;
-        div.style.margin = "5px 0";
-        list.appendChild(div);
-
-        // Filter kategori
-        const btn = document.createElement("button");
-        btn.textContent = `${cat.icon} ${cat.name}`;
-        btn.style.border = `2px solid ${cat.color}`;
-        btn.style.color = cat.color;
-        btn.style.margin = "3px";
-        btn.onclick = () => setCategoryFilter(cat.id);
-
-        filter.appendChild(btn);
-    });
-}
-
 
 /* ================= RENDER TASK ================= */
 
@@ -176,16 +194,14 @@ function renderTasks() {
     const list = document.getElementById("taskList");
     const searchInput = document.getElementById("searchInput");
 
-    if (!list) return;
-
-    const search = searchInput ? searchInput.value.toLowerCase() : "";
+    const searchValue = searchInput.value.toLowerCase();
 
     list.innerHTML = "";
 
     let filtered = tasks.filter(task => {
 
         const matchSearch =
-            task.text.toLowerCase().includes(search);
+            task.text.toLowerCase().includes(searchValue);
 
         const matchStatus =
             statusFilter === "all" ||
@@ -202,7 +218,6 @@ function renderTasks() {
     filtered.forEach(task => {
 
         const cat = categories.find(c => c.id === task.categoryId);
-
         const color = cat ? cat.color : "#ff69b4";
         const icon = cat ? cat.icon : "📌";
 
@@ -217,8 +232,9 @@ function renderTasks() {
                 (${task.date || "No date"})
             </span>
             <div>
-                <button onclick="toggleTask(${task.id})">✔</button>
-                <button onclick="deleteTask(${task.id})">✖</button>
+                <button onclick="toggleTask('${task.id}')">✔</button>
+                <button onclick="startEditTask('${task.id}')">✏</button>
+                <button onclick="deleteTask('${task.id}')">✖</button>
             </div>
         `;
 
@@ -228,29 +244,30 @@ function renderTasks() {
     updateStats();
 }
 
+/* ================= FILTER ================= */
 
-/* ================= STATISTIK ================= */
-
-function updateStats() {
-
-    document.getElementById("totalTask").innerText = tasks.length;
-    document.getElementById("doneTask").innerText =
-        tasks.filter(t => t.done).length;
-    document.getElementById("pendingTask").innerText =
-        tasks.filter(t => !t.done).length;
+function setStatusFilter(status) {
+    statusFilter = status;
+    renderTasks();
 }
-
 
 /* ================= SEARCH ================= */
 
 document.addEventListener("DOMContentLoaded", () => {
-
-    const searchInput = document.getElementById("searchInput");
-
-    if (searchInput) {
-        searchInput.addEventListener("input", renderTasks);
-    }
+    document
+        .getElementById("searchInput")
+        .addEventListener("input", renderTasks);
 
     renderCategories();
     renderTasks();
 });
+
+/* ================= STATISTIK ================= */
+
+function updateStats() {
+    document.getElementById("totalTask").textContent = tasks.length;
+    document.getElementById("doneTask").textContent =
+        tasks.filter(t => t.done).length;
+    document.getElementById("pendingTask").textContent =
+        tasks.filter(t => !t.done).length;
+}
